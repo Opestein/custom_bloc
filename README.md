@@ -17,6 +17,9 @@ A basic custom stream builder.
 
 This allows easy adding of data from network and disposing of bloc
 
+## How To Use Custom Bloc
+
+```dart
 class Example extends StatefulWidget {
   const Example({Key? key}) : super(key: key);
 
@@ -105,5 +108,5 @@ class _ExampleState extends State<Example> {
   }
 }
 
-
+```
 
