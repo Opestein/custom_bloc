@@ -91,8 +91,8 @@ class CustomBlocErrorWidget extends StatelessWidget {
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.subtitle2!
-                    .copyWith(color: Colors.white, fontWeight: FontWeight.w500),
+                style: theme.textTheme.bodyText2!
+                    .copyWith(fontWeight: FontWeight.w500),
               ),
               const SizedBox(
                 height: 14,
@@ -116,10 +116,8 @@ class CustomBlocErrorWidget extends StatelessWidget {
                 height: 55,
                 child: Text(
                   title,
-                  style: theme.textTheme.bodyText2!.copyWith(
-                      color: theme.buttonTheme.colorScheme?.primary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12),
+                  style: theme.textTheme.button!
+                      .copyWith(fontWeight: FontWeight.w700, fontSize: 12),
                 ),
               ),
             ),
