@@ -1,6 +1,6 @@
 name: custom_bloc
 description: A simple implementation of bloc
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/Opestein/custom_bloc
 
 environment:
