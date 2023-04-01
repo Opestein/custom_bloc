@@ -2,7 +2,8 @@
 *  custom_bloc
 *
 *  Created by [Folarin Opeyemi].
-*  Copyright © 2022. All rights reserved.
+*  Copyright © 2023. All rights reserved.
     */
 
-enum ItemState { hasData, hasError, loading, no_content }
+///Used to identity state of the library
+enum ItemState { hasData, hasError, loading, noContent }

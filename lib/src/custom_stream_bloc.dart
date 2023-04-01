@@ -2,7 +2,7 @@
 *  custom_bloc
 *
 *  Created by [Folarin Opeyemi].
-*  Copyright © 2022. All rights reserved.
+*  Copyright © 2023. All rights reserved.
     */
 
 import 'package:custom_bloc/src/base_model.dart';
@@ -14,27 +14,29 @@ typedef AsyncErrorWidgetBuilder<T, E> = Widget Function(
     BuildContext context, E error);
 typedef AsyncLoadingWidgetBuilder = Widget Function(BuildContext context);
 
+///Widget class for the library.
+///Basically wraps around and abstract a StreamBuilder widget
 class CustomStreamBuilder<T, E> extends StatelessWidget {
-  BaseModel<T, E>? data = BaseModel<T, E>();
+  final BaseModel<T, E>? initialData;
   final Stream<BaseModel<T, E>>? stream;
   final AsyncDataWidgetBuilder<T> dataBuilder;
   final AsyncErrorWidgetBuilder<T, E>? errorBuilder;
   final AsyncLoadingWidgetBuilder? loadingBuilder;
 
-  CustomStreamBuilder(
+  const CustomStreamBuilder(
       {Key? key,
       required this.stream,
       required this.dataBuilder,
       this.errorBuilder,
       this.loadingBuilder,
-      this.data})
+      this.initialData})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<BaseModel<T, E>>(
         stream: stream,
-        initialData: data,
+        initialData: initialData,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             if (snapshot.data!.hasData) {
@@ -59,12 +61,17 @@ class CustomStreamBuilder<T, E> extends StatelessWidget {
 
 typedef OnRetryCallback = Function();
 
+///A simple button that can be used to display errors
 class CustomBlocErrorWidget extends StatelessWidget {
   final OnRetryCallback? onPressed;
   final String buttonText;
   final Color buttonColor;
   final String title;
   final Widget? child;
+  final double buttonHeight;
+  final double maxButtonWidth;
+  final double buttonBorderRadius;
+  final Color buttonPressSplashColor;
 
   const CustomBlocErrorWidget(
       {Key? key,
@@ -72,7 +79,11 @@ class CustomBlocErrorWidget extends StatelessWidget {
       this.buttonText = 'Retry',
       this.buttonColor = Colors.red,
       this.title = 'No item found',
-      this.child})
+      this.child,
+      this.buttonHeight = 55,
+      this.maxButtonWidth = 450,
+      this.buttonBorderRadius = 10,
+      this.buttonPressSplashColor = Colors.black45})
       : super(key: key);
 
   @override
@@ -91,7 +102,7 @@ class CustomBlocErrorWidget extends StatelessWidget {
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyText2!
+                style: theme.textTheme.bodyMedium!
                     .copyWith(fontWeight: FontWeight.w500),
               ),
               const SizedBox(
@@ -99,24 +110,24 @@ class CustomBlocErrorWidget extends StatelessWidget {
               )
             ]),
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 450),
+          constraints: BoxConstraints(maxWidth: maxButtonWidth),
           child: Material(
             color: theme.buttonTheme.colorScheme!.primary,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(buttonBorderRadius),
             child: InkWell(
               onTap: () {
                 if (onPressed != null) onPressed!();
               },
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(buttonBorderRadius),
               splashFactory: InkSplash.splashFactory,
-              splashColor: Colors.black45,
+              splashColor: buttonPressSplashColor,
               child: Container(
                 alignment: Alignment.center,
                 width: double.infinity,
-                height: 55,
+                height: buttonHeight,
                 child: Text(
                   title,
-                  style: theme.textTheme.button!
+                  style: theme.textTheme.labelLarge!
                       .copyWith(fontWeight: FontWeight.w700, fontSize: 12),
                 ),
               ),

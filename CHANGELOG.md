@@ -1,3 +1,5 @@
-## 0.0.1
+## 0.0.3
 
-First Release
+Default state updated to noContent
+Ability to update state to noContent
+
