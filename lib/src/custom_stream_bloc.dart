@@ -13,15 +13,28 @@ typedef AsyncDataWidgetBuilder<T> = Widget Function(
 typedef AsyncErrorWidgetBuilder<T, E> = Widget Function(
     BuildContext context, E error);
 typedef AsyncLoadingWidgetBuilder = Widget Function(BuildContext context);
+typedef AsyncNoContentWidgetBuilder = Widget Function(BuildContext context);
 
 ///Widget class for the library.
 ///Basically wraps around and abstract a StreamBuilder widget
 class CustomStreamBuilder<T, E> extends StatelessWidget {
+  ///initial data
   final BaseModel<T, E>? initialData;
+
+  ///the actual bloc
   final Stream<BaseModel<T, E>>? stream;
+
+  ///called when [addToModel] is called on bloc
   final AsyncDataWidgetBuilder<T> dataBuilder;
+
+  ///called when [addToError] is called on bloc
   final AsyncErrorWidgetBuilder<T, E>? errorBuilder;
+
+  ///called when [setAsLoading] is called on bloc
   final AsyncLoadingWidgetBuilder? loadingBuilder;
+
+  ///called when [setAsNoContent] is called on bloc
+  final AsyncNoContentWidgetBuilder? noContentBuilder;
 
   const CustomStreamBuilder(
       {Key? key,
@@ -29,6 +42,7 @@ class CustomStreamBuilder<T, E> extends StatelessWidget {
       required this.dataBuilder,
       this.errorBuilder,
       this.loadingBuilder,
+      this.noContentBuilder,
       this.initialData})
       : super(key: key);
 
@@ -46,9 +60,14 @@ class CustomStreamBuilder<T, E> extends StatelessWidget {
                 return errorBuilder!(context, snapshot.data!.error!);
               }
               return const SizedBox();
-            } else {
+            } else if (snapshot.data!.isLoading) {
               if (loadingBuilder != null) {
                 return loadingBuilder!(context);
+              }
+              return const SizedBox();
+            } else {
+              if (noContentBuilder != null) {
+                return noContentBuilder!(context);
               }
               return const SizedBox();
             }

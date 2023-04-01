@@ -11,7 +11,7 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-A basic custom stream builder.
+A simple custom stream builder library based on BLOC pattern. Uses stream underneath.
 
 ## Features
 
@@ -64,13 +64,15 @@ class _ExampleState extends State<Example> {
                   },
                 );
               },
-              loadingBuilder: (context) => const Center(
+              loadingBuilder: (context) =>
+              const Center(
                 child: CircularProgressIndicator(),
               ),
-              errorBuilder: (context, error) => Text(
-                error,
-                style: const TextStyle(),
-              ),
+              errorBuilder: (context, error) =>
+                  Text(
+                    error,
+                    style: const TextStyle(),
+                  ),
             ),
           ),
           const SizedBox(

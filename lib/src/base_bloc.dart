@@ -47,6 +47,13 @@ class BaseBloc<T, E> {
   ///Update the stream
   _addToStream() => _behaviorSubject.add(baseModel);
 
+  ///merge stream
+  ///call this when you want to merge data that have similar result together
+  Stream<BaseModel<T, E>> mergeStreams(
+      Iterable<Stream<BaseModel<T, E>>> streams) {
+    return _behaviorSubject.mergeWith(streams);
+  }
+
   ///Reset the stream
   invalidateBaseBloc() {
     baseModel = BaseModel<T, E>();
