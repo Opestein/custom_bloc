@@ -1,3 +1,7 @@
+# 0.1.2
+
+- Fixed twoStream type casting
+
 # 0.1.1
 
 - Bug Fixes.
