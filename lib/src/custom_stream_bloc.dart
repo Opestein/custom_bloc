@@ -43,7 +43,7 @@ class CustomStreamBuilder<T, E, T2, E2> extends StatelessWidget {
   AsyncDataWidgetBuilder<T>? dataBuilder;
 
   ///called when [addToModel] is called on on either bloc
-  AsyncDataWidgetBuilder2<BaseModel<T, E>, BaseModel<T2, E2>>? dataBuilder2;
+  AsyncDataWidgetBuilder2<BaseModel<T?, E?>, BaseModel<T2?, E2?>>? dataBuilder2;
 
   ///called when all stream has been loaded at least once
   AsyncDataWidgetBuilderMulti? itemBuilderMulti;
@@ -131,6 +131,8 @@ class CustomStreamBuilder<T, E, T2, E2> extends StatelessWidget {
         });
   }
 
+  ///This StreamBuilder require each streams to be loaded at least once.
+  ///You can call set to no content for each bloc to make sure bloc each blocs are initialised
   Widget _twoStream() {
     return StreamBuilder<BaseModel<List<BaseModel<dynamic, dynamic>>, E>>(
         stream: CombineLatestStream.combine2(
@@ -144,19 +146,7 @@ class CustomStreamBuilder<T, E, T2, E2> extends StatelessWidget {
                 model: b.hasData ? (b.model) : null,
                 itemState: b.itemState,
                 error: b.hasError ? (b.error) : null)
-          ], itemState: ItemState.hasData
-              // itemState: (a.hasData || b.hasData)
-              //     ? ItemState.hasData
-              //     : (a.isLoading && b.isLoading)
-              //         ? ItemState.loading
-              //         : (a.hasError && b.hasError)
-              //             ? ItemState.hasError
-              //             : (a.isLoading || b.isLoading)
-              //                 ? ItemState.loading
-              //                 : (a.hasError || b.hasError)
-              //                     ? ItemState.hasError
-              //                     : ItemState.noContent
-              );
+          ], itemState: ItemState.hasData);
         }),
         initialData: initialData2,
         builder: (context, snapshot) {
@@ -164,14 +154,16 @@ class CustomStreamBuilder<T, E, T2, E2> extends StatelessWidget {
             if (snapshot.data!.hasData && dataBuilder2 != null) {
               return dataBuilder2!(
                   context,
-                  BaseModel<T, E>(
-                      model: snapshot.data!.model!.first.model as T,
-                      error: snapshot.data!.model!.first.error as E,
-                      itemState: snapshot.data!.model!.first.itemState),
-                  BaseModel<T2, E2>(
-                      model: snapshot.data!.model!.elementAt(1).model as T2,
-                      error: snapshot.data!.model!.elementAt(1).error as E2,
-                      itemState: snapshot.data!.model!.elementAt(1).itemState));
+                  BaseModel<T?, E?>(
+                      model: snapshot.data?.model?.first.model as T?,
+                      error: snapshot.data?.model?.first.error as E?,
+                      itemState: snapshot.data?.model?.first.itemState ??
+                          ItemState.noContent),
+                  BaseModel<T2?, E2?>(
+                      model: snapshot.data?.model?.elementAt(1).model as T2?,
+                      error: snapshot.data?.model?.elementAt(1).error as E2?,
+                      itemState: snapshot.data?.model?.elementAt(1).itemState ??
+                          ItemState.noContent));
             } else if (snapshot.data!.hasError) {
               if (errorBuilder != null) {
                 return errorBuilder!(context, snapshot.data!.error!);
@@ -194,6 +186,8 @@ class CustomStreamBuilder<T, E, T2, E2> extends StatelessWidget {
         });
   }
 
+  ///This StreamBuilder require each streams to be loaded at least once.
+  ///You can call set to no content for each bloc to make sure bloc each blocs are initialised
   Widget _multiStream() {
     return StreamBuilder<List<BaseModel<dynamic, dynamic>>>(
         stream: Rx.combineLatestList(streams!),

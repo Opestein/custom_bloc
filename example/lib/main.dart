@@ -194,8 +194,8 @@ class _Example2State extends State<Example2> {
                   counterBloc.behaviorSubject,
                   newCounterBloc.behaviorSubject
                 ],
-                dataBuilder2: (context, BaseModel<int, String> data,
-                    BaseModel<double, String> secondData) {
+                dataBuilder2: (context, BaseModel<int?, String?> data,
+                    BaseModel<double?, String?> secondData) {
                   var counterBlocData = data.model;
                   var counterBlocState = data.itemState;
                   var counterBlocDataError = data.error;

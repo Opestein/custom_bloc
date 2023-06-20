@@ -1,3 +1,19 @@
+# 0.1.5
+
+- Added More Documentation.
+
+# 0.1.4
+
+- Bug Fixes.
+
+# 0.1.3
+
+- Bug Fixes.
+
+# 0.1.2
+
+- Bug Fixes.
+
 # 0.1.2
 
 - Fixed twoStream type casting
