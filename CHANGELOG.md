@@ -1,3 +1,7 @@
+# 0.1.1
+
+- Bug Fixes.
+
 # 0.1.0
 
 - Support to use more than one bloc in a CustomStreamBuilder.

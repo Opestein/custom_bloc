@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 typedef AsyncDataWidgetBuilder<T> = Widget Function(
-    BuildContext context, T snapshot);
+    BuildContext context, T data);
 typedef AsyncDataWidgetBuilder2<T, T2> = Widget Function(
     BuildContext context, T snapshot, T2 snapshot2);
 typedef AsyncDataWidgetBuilderMulti = Widget Function(
@@ -23,7 +23,7 @@ typedef AsyncNoContentWidgetBuilder = Widget Function(BuildContext context);
 
 ///Widget class for the library.
 ///Basically wraps around and abstract a StreamBuilder widget
-class CustomStreamBuilder<T, E> extends StatelessWidget {
+class CustomStreamBuilder<T, E, T2, E2> extends StatelessWidget {
   ///initial data
   BaseModel<T, E>? initialData;
 
@@ -37,13 +37,13 @@ class CustomStreamBuilder<T, E> extends StatelessWidget {
   Stream<BaseModel<T, E>>? stream;
 
   ///the list of blocs
-  List<Stream<BaseModel<dynamic, E>>>? streams;
+  List<Stream<BaseModel<dynamic, dynamic>>>? streams;
 
   ///called when [addToModel] is called on bloc
   AsyncDataWidgetBuilder<T>? dataBuilder;
 
   ///called when [addToModel] is called on on either bloc
-  AsyncDataWidgetBuilder2<BaseModel, BaseModel>? dataBuilder2;
+  AsyncDataWidgetBuilder2<BaseModel<T, E>, BaseModel<T2, E2>>? dataBuilder2;
 
   ///called when all stream has been loaded at least once
   AsyncDataWidgetBuilderMulti? itemBuilderMulti;
@@ -162,8 +162,10 @@ class CustomStreamBuilder<T, E> extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             if (snapshot.data!.hasData && dataBuilder2 != null) {
-              return dataBuilder2!(context, snapshot.data!.model!.first,
-                  snapshot.data!.model!.elementAt(1));
+              return dataBuilder2!(
+                  context,
+                  snapshot.data!.model!.first as BaseModel<T, E>,
+                  snapshot.data!.model!.elementAt(1) as BaseModel<T2, E2>);
             } else if (snapshot.data!.hasError) {
               if (errorBuilder != null) {
                 return errorBuilder!(context, snapshot.data!.error!);

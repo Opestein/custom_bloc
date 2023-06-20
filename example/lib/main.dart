@@ -45,7 +45,7 @@ class _ExampleState extends State<Example> {
         child: Column(
           children: [
             Expanded(
-              child: CustomStreamBuilder<int, String>(
+              child: CustomStreamBuilder(
                 stream: counterBloc.behaviorSubject,
                 dataBuilder: (context, data) {
                   return ListView.separated(
@@ -194,13 +194,14 @@ class _Example2State extends State<Example2> {
                   counterBloc.behaviorSubject,
                   newCounterBloc.behaviorSubject
                 ],
-                dataBuilder2: (context, data, secondData) {
-                  var counterBlocData = data.model as int?;
+                dataBuilder2: (context, BaseModel<int, String> data,
+                    BaseModel<double, String> secondData) {
+                  var counterBlocData = data.model;
                   var counterBlocState = data.itemState;
-                  var counterBlocDataError = data.error as String?;
-                  var newCounterBlocData = secondData.model as double?;
+                  var counterBlocDataError = data.error;
+                  var newCounterBlocData = secondData.model;
                   var newCounterBlocState = secondData.itemState;
-                  var newCounterBlocError = secondData.error as String?;
+                  var newCounterBlocError = secondData.error;
 
                   return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -249,7 +250,7 @@ class _Example2State extends State<Example2> {
                   child: CircularProgressIndicator(),
                 ),
                 errorBuilder: (context, error) => Text(
-                  error,
+                  error.toString(),
                   style: const TextStyle(),
                 ),
               ),
