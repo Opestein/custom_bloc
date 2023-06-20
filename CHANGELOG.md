@@ -1,3 +1,13 @@
+# 0.1.0
+
+- Support to use more than one bloc in a CustomStreamBuilder.
+- Two new constructors added, .twoStream and .multi
+- Updated Examples
+
+# 0.0.5
+
+- Updated CustomBlocErrorWidget
+
 # 0.0.4
 
 - Added noContentBuilder to CustomStreamBuilder

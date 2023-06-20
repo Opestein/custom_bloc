@@ -6,10 +6,16 @@
     */
 
 import 'package:custom_bloc/src/base_model.dart';
+import 'package:custom_bloc/src/enum.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 
 typedef AsyncDataWidgetBuilder<T> = Widget Function(
     BuildContext context, T snapshot);
+typedef AsyncDataWidgetBuilder2<T, T2> = Widget Function(
+    BuildContext context, T snapshot, T2 snapshot2);
+typedef AsyncDataWidgetBuilderMulti = Widget Function(
+    BuildContext context, List<BaseModel> snapshots);
 typedef AsyncErrorWidgetBuilder<T, E> = Widget Function(
     BuildContext context, E error);
 typedef AsyncLoadingWidgetBuilder = Widget Function(BuildContext context);
@@ -19,24 +25,41 @@ typedef AsyncNoContentWidgetBuilder = Widget Function(BuildContext context);
 ///Basically wraps around and abstract a StreamBuilder widget
 class CustomStreamBuilder<T, E> extends StatelessWidget {
   ///initial data
-  final BaseModel<T, E>? initialData;
+  BaseModel<T, E>? initialData;
+
+  ///initial data for both stream
+  BaseModel<List<BaseModel<dynamic, dynamic>>, E>? initialData2;
+
+  ///initial data for all stream
+  List<BaseModel<dynamic, dynamic>>? initialDataMulti;
 
   ///the actual bloc
-  final Stream<BaseModel<T, E>>? stream;
+  Stream<BaseModel<T, E>>? stream;
+
+  ///the list of blocs
+  List<Stream<BaseModel<dynamic, E>>>? streams;
 
   ///called when [addToModel] is called on bloc
-  final AsyncDataWidgetBuilder<T> dataBuilder;
+  AsyncDataWidgetBuilder<T>? dataBuilder;
+
+  ///called when [addToModel] is called on on either bloc
+  AsyncDataWidgetBuilder2<BaseModel, BaseModel>? dataBuilder2;
+
+  ///called when all stream has been loaded at least once
+  AsyncDataWidgetBuilderMulti? itemBuilderMulti;
 
   ///called when [addToError] is called on bloc
-  final AsyncErrorWidgetBuilder<T, E>? errorBuilder;
+  AsyncErrorWidgetBuilder<T, E>? errorBuilder;
 
   ///called when [setAsLoading] is called on bloc
-  final AsyncLoadingWidgetBuilder? loadingBuilder;
+  AsyncLoadingWidgetBuilder? loadingBuilder;
 
   ///called when [setAsNoContent] is called on bloc
-  final AsyncNoContentWidgetBuilder? noContentBuilder;
+  AsyncNoContentWidgetBuilder? noContentBuilder;
 
-  const CustomStreamBuilder(
+  int _streamCount = 1;
+
+  CustomStreamBuilder(
       {Key? key,
       required this.stream,
       required this.dataBuilder,
@@ -46,15 +69,46 @@ class CustomStreamBuilder<T, E> extends StatelessWidget {
       this.initialData})
       : super(key: key);
 
+  CustomStreamBuilder.twoSubject(
+      {super.key,
+      required this.streams,
+      required this.dataBuilder2,
+      this.errorBuilder,
+      this.loadingBuilder,
+      this.noContentBuilder,
+      this.initialData2})
+      : assert((streams?.length ?? 0) == 2) {
+    _streamCount = 2;
+  }
+
+  CustomStreamBuilder.multiSubject(
+      {super.key,
+      required this.streams,
+      required this.itemBuilderMulti,
+      this.initialDataMulti})
+      : assert((streams?.length ?? 0) > 0) {
+    _streamCount = 1000;
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_streamCount == 2) {
+      return _twoStream();
+    } else if (_streamCount == 1000) {
+      return _multiStream();
+    }
+
+    return _singleStream();
+  }
+
+  Widget _singleStream() {
     return StreamBuilder<BaseModel<T, E>>(
         stream: stream,
         initialData: initialData,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            if (snapshot.data!.hasData) {
-              return dataBuilder(context, snapshot.data!.model!);
+            if (snapshot.data!.hasData && dataBuilder != null) {
+              return dataBuilder!(context, snapshot.data!.model!);
             } else if (snapshot.data!.hasError) {
               if (errorBuilder != null) {
                 return errorBuilder!(context, snapshot.data!.error!);
@@ -76,6 +130,76 @@ class CustomStreamBuilder<T, E> extends StatelessWidget {
           return const SizedBox();
         });
   }
+
+  Widget _twoStream() {
+    return StreamBuilder<BaseModel<List<BaseModel<dynamic, dynamic>>, E>>(
+        stream: CombineLatestStream.combine2(
+            streams!.first, streams!.elementAt(1), (a, b) {
+          return BaseModel(model: [
+            BaseModel(
+                model: a.hasData ? (a.model) : null,
+                itemState: a.itemState,
+                error: a.hasError ? (a.error) : null),
+            BaseModel(
+                model: b.hasData ? (b.model) : null,
+                itemState: b.itemState,
+                error: b.hasError ? (b.error) : null)
+          ], itemState: ItemState.hasData
+              // itemState: (a.hasData || b.hasData)
+              //     ? ItemState.hasData
+              //     : (a.isLoading && b.isLoading)
+              //         ? ItemState.loading
+              //         : (a.hasError && b.hasError)
+              //             ? ItemState.hasError
+              //             : (a.isLoading || b.isLoading)
+              //                 ? ItemState.loading
+              //                 : (a.hasError || b.hasError)
+              //                     ? ItemState.hasError
+              //                     : ItemState.noContent
+              );
+        }),
+        initialData: initialData2,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data!.hasData && dataBuilder2 != null) {
+              return dataBuilder2!(context, snapshot.data!.model!.first,
+                  snapshot.data!.model!.elementAt(1));
+            } else if (snapshot.data!.hasError) {
+              if (errorBuilder != null) {
+                return errorBuilder!(context, snapshot.data!.error!);
+              }
+              return const SizedBox();
+            } else if (snapshot.data!.isLoading) {
+              if (loadingBuilder != null) {
+                return loadingBuilder!(context);
+              }
+              return const SizedBox();
+            } else {
+              if (noContentBuilder != null) {
+                return noContentBuilder!(context);
+              }
+              return const SizedBox();
+            }
+          }
+
+          return const SizedBox();
+        });
+  }
+
+  Widget _multiStream() {
+    return StreamBuilder<List<BaseModel<dynamic, dynamic>>>(
+        stream: Rx.combineLatestList(streams!),
+        initialData: initialDataMulti,
+        builder: (context, snapshot) {
+          if (snapshot.hasData &&
+              snapshot.data != null &&
+              itemBuilderMulti != null) {
+            return itemBuilderMulti!(context, snapshot.data!);
+          }
+
+          return const SizedBox();
+        });
+  }
 }
 
 typedef OnRetryCallback = Function();
@@ -84,7 +208,7 @@ typedef OnRetryCallback = Function();
 class CustomBlocErrorWidget extends StatelessWidget {
   final OnRetryCallback? onPressed;
   final String buttonText;
-  final Color buttonColor;
+  final Color? buttonColor;
   final String title;
   final Widget? child;
   final double buttonHeight;
@@ -96,7 +220,7 @@ class CustomBlocErrorWidget extends StatelessWidget {
       {Key? key,
       this.onPressed,
       this.buttonText = 'Retry',
-      this.buttonColor = Colors.red,
+      this.buttonColor,
       this.title = 'No item found',
       this.child,
       this.buttonHeight = 55,
@@ -131,7 +255,7 @@ class CustomBlocErrorWidget extends StatelessWidget {
         ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxButtonWidth),
           child: Material(
-            color: theme.buttonTheme.colorScheme!.primary,
+            color: buttonColor ?? theme.buttonTheme.colorScheme!.primary,
             borderRadius: BorderRadius.circular(buttonBorderRadius),
             child: InkWell(
               onTap: () {
@@ -145,7 +269,7 @@ class CustomBlocErrorWidget extends StatelessWidget {
                 width: double.infinity,
                 height: buttonHeight,
                 child: Text(
-                  title,
+                  buttonText,
                   style: theme.textTheme.labelLarge!
                       .copyWith(fontWeight: FontWeight.w700, fontSize: 12),
                 ),

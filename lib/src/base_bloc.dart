@@ -12,10 +12,16 @@ import 'package:rxdart/rxdart.dart';
 class BaseBloc<T, E> {
   ///Stream declaration
   final BehaviorSubject<BaseModel<T, E>> _behaviorSubject =
-      BehaviorSubject<BaseModel<T, E>>();
+      BehaviorSubject<BaseModel<T, E>>.seeded(BaseModel<T, E>());
 
   ///getter for the stream
   BehaviorSubject<BaseModel<T, E>> get behaviorSubject => _behaviorSubject;
+
+  ///getter for data
+  T? get data => _behaviorSubject.value.model;
+
+  ///getter for error
+  E? get error => _behaviorSubject.value.error;
 
   ///Base object of the stream
   BaseModel<T, E> baseModel = BaseModel<T, E>(itemState: ItemState.noContent);

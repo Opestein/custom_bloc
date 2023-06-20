@@ -1,25 +1,27 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+/*
+*  custom_bloc
+*
+*  Created by [Folarin Opeyemi].
+*  Copyright © 2022. All rights reserved.
+    */
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
+import 'dart:async';
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
+import 'package:custom_bloc/custom_bloc.dart';
+import 'package:flutter/material.dart';
 
-A simple custom stream builder library based on BLOC pattern. Uses stream underneath.
+void main() async {
+  String type = 'multi';
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MaterialApp(
+    home: type == 'one'
+        ? const Example()
+        : type == 'two'
+            ? const Example2()
+            : const ExampleMulti(),
+  ));
+}
 
-## Features
-
-This allows easy adding of data from network and disposing of bloc
-
-## How To Use Custom Bloc
-
-```dart
 class Example extends StatefulWidget {
   const Example({Key? key}) : super(key: key);
 
@@ -50,7 +52,7 @@ class _ExampleState extends State<Example> {
                     itemCount: 1,
                     scrollDirection: Axis.horizontal,
                     padding:
-                    const EdgeInsets.symmetric(horizontal: 4, vertical: 24),
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 24),
                     itemBuilder: (context, index) {
                       return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -215,12 +217,12 @@ class _Example2State extends State<Example2> {
                               style: const TextStyle(fontSize: 34),
                             )
                           else if (counterBlocState == ItemState.noContent)
-                              const SizedBox()
-                            else
-                              Text(
-                                'counterBlocData: $counterBlocData',
-                                style: const TextStyle(fontSize: 34),
-                              ),
+                            const SizedBox()
+                          else
+                            Text(
+                              'counterBlocData: $counterBlocData',
+                              style: const TextStyle(fontSize: 34),
+                            ),
                           const SizedBox(
                             height: 34,
                           ),
@@ -234,12 +236,12 @@ class _Example2State extends State<Example2> {
                               style: const TextStyle(fontSize: 34),
                             )
                           else if (newCounterBlocState == ItemState.noContent)
-                              const SizedBox()
-                            else
-                              Text(
-                                'newCounterBlocData: $newCounterBlocData',
-                                style: const TextStyle(fontSize: 34),
-                              ),
+                            const SizedBox()
+                          else
+                            Text(
+                              'newCounterBlocData: $newCounterBlocData',
+                              style: const TextStyle(fontSize: 34),
+                            ),
                         ],
                       ));
                 },
@@ -419,12 +421,12 @@ class _ExampleMultiState extends State<ExampleMulti> {
                               style: const TextStyle(fontSize: 34),
                             )
                           else if (counterBlocState == ItemState.noContent)
-                              const SizedBox()
-                            else
-                              Text(
-                                'counterBlocData: $counterBlocData',
-                                style: const TextStyle(fontSize: 34),
-                              ),
+                            const SizedBox()
+                          else
+                            Text(
+                              'counterBlocData: $counterBlocData',
+                              style: const TextStyle(fontSize: 34),
+                            ),
                           const SizedBox(
                             height: 34,
                           ),
@@ -438,12 +440,12 @@ class _ExampleMultiState extends State<ExampleMulti> {
                               style: const TextStyle(fontSize: 34),
                             )
                           else if (newCounterBlocState == ItemState.noContent)
-                              const SizedBox()
-                            else
-                              Text(
-                                'newCounterBlocData: $newCounterBlocData',
-                                style: const TextStyle(fontSize: 34),
-                              ),
+                            const SizedBox()
+                          else
+                            Text(
+                              'newCounterBlocData: $newCounterBlocData',
+                              style: const TextStyle(fontSize: 34),
+                            ),
                         ],
                       ));
                 },
@@ -528,7 +530,3 @@ class _ExampleMultiState extends State<ExampleMulti> {
     );
   }
 }
-
-
-```
-
