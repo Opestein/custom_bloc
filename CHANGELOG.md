@@ -1,3 +1,17 @@
+# 0.1.8
+
+- Added Infinite scrolling support
+- Added CustomBlocBuilder widget for more itemState control
+
+# 0.1.7
+
+- Updated color
+
+# 0.1.6
+
+- Added new getters for easy access to data, error and states including the following blocHasData,
+  blocHasError, blocIsLoading, blocHasNoContent, dataNullable, errorNullable.
+
 # 0.1.5
 
 - Added More Documentation.
