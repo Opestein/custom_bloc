@@ -1,4 +1,8 @@
-# 0.1.8
+# 0.1.9
+
+- Fixed issue adding some data to bloc
+
+- # 0.1.8
 
 - Added Infinite scrolling support
 - Added CustomBlocBuilder widget for more itemState control

@@ -130,7 +130,7 @@ class BaseBloc<T, E> {
 
   ///Update the stream
   _addToStream() {
-    if (!_behaviorSubject.isClosed()) {
+    if (_behaviorSubject.isClosed == false) {
       _behaviorSubject.add(_baseModel);
     }
   }
@@ -150,7 +150,7 @@ class BaseBloc<T, E> {
 
   ///Checks if stream is opened and close the stream
   disposeBaseBloc() {
-    if (!_behaviorSubject.isClosed) {
+    if (_behaviorSubject.isClosed == false) {
       _behaviorSubject.close();
     }
   }
