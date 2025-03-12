@@ -353,7 +353,7 @@ class CounterBloc2 extends BaseBlocInfiniteLoadingFactoryBloc<double, String> {
 
   @override
   fetchNextPage(
-      {Function()? onSuccessfulFetch, Function()? onFailedFetch}) async {
+      {Function()? startLoadingMore, Function()? stopLoadingMore}) async {
     await Future.delayed(const Duration(seconds: 2));
     value += 0.5;
     addToModel(value);
@@ -756,20 +756,24 @@ class CounterInfiniteScrollingBloc
     value += 0.5;
     addToModel(value);
 
-    incrementPageCountAndStartLoaderSubject();
+    incrementPageCountAndStartLoadingMore();
   }
 
   @override
   fetchNextPage(
-      {Function()? onSuccessfulFetch, Function()? onFailedFetch}) async {
+      {Function()? startLoadingMore, Function()? stopLoadingMore}) async {
     bool isSuccessful = await Future.delayed(const Duration(seconds: 2));
 
     if (isSuccessful) {
       value += 0.5;
       addToModel(value);
-      incrementPageCountAndStartLoaderSubject();
+      if (startLoadingMore != null) {
+        startLoadingMore();
+      }
     } else {
-      stopLoaderSubject();
+      if (stopLoadingMore != null) {
+        stopLoadingMore();
+      }
     }
   }
 
@@ -778,12 +782,14 @@ class CounterInfiniteScrollingBloc
     setAsNoContent();
   }
 
+  @override
   invalidate() {
-    invalidateBaseBloc();
+   super.invalidate();
   }
 
+  @override
   dispose() {
-    disposeBaseBloc();
+    super.dispose();
   }
 }
 

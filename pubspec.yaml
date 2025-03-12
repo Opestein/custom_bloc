@@ -1,6 +1,6 @@
 name: custom_bloc
 description: A simple wrapper around stream controller/rxdart stream for easier implementation of bloc pattern
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/Opestein/custom_bloc
 
 environment:

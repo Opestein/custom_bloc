@@ -2,10 +2,10 @@ import 'package:custom_bloc/custom_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
-abstract class BaseBlocInfiniteLoadingFactoryBloc<T, E> extends BaseBloc<T, E> {
+  class BaseBlocInfiniteLoadingFactoryBloc<T, E> extends BaseBloc<T, E> {
   int pageNumber = 1;
   int perPage = 20;
-  double pixels = 0.0;
+  double lastPixelPosition = 0.0;
 
   BaseBlocInfiniteLoadingFactoryBloc(
       {Function(ScrollNotification scrollNotification)? fetchNextPage}) {
@@ -23,35 +23,39 @@ abstract class BaseBlocInfiniteLoadingFactoryBloc<T, E> extends BaseBloc<T, E> {
 
   final ReplaySubject<ScrollNotification> _scrollControllerCC = ReplaySubject();
 
-  Sink<ScrollNotification> get sinkScrollNotification => _scrollControllerCC.sink;
+  Sink<ScrollNotification> get sinkScrollNotification =>
+      _scrollControllerCC.sink;
 
   resetInfiniteDependencies() {
     _loadingMoreStream.add(false);
     pageNumber = 1;
-    pixels = 0;
+    lastPixelPosition = 0;
   }
 
   _fetchNextPage(ScrollNotification notification) {
     if (pageNumber != 1) {
       if (notification.metrics.pixels == notification.metrics.maxScrollExtent &&
-          pixels != notification.metrics.pixels) {
-        pixels = notification.metrics.pixels;
+          lastPixelPosition != notification.metrics.pixels) {
+        lastPixelPosition = notification.metrics.pixels;
 
-        fetchNextPage(onSuccessfulFetch: () {
+        fetchNextPage(startLoadingMore: () {
           incrementPageCount();
-          startLoaderSubject();
-        }, onFailedFetch: () {
-          stopLoaderSubject();
+          startLoadingMore();
+        }, stopLoadingMore: () {
+          stopLoadingMore();
         });
       }
     }
   }
 
   /// Override if you want to conform;
-  fetchNextPage({Function()? onSuccessfulFetch, Function()? onFailedFetch});
+  fetchNextPage({Function()? startLoadingMore, Function()? stopLoadingMore}) {
+
+  }
 
   invalidate() {
-    pixels = 0;
+    pageNumber = 1;
+    lastPixelPosition = 0;
     invalidateBaseBloc();
   }
 
@@ -63,19 +67,19 @@ abstract class BaseBlocInfiniteLoadingFactoryBloc<T, E> extends BaseBloc<T, E> {
   // Below are helper functions
   incrementPageCount() => pageNumber = pageNumber + 1;
 
-  incrementPageCountAndStartLoaderSubject() {
+  incrementPageCountAndStartLoadingMore() {
     if (!_loadingMoreStream.isClosed) {
       _loadingMoreStream.add(true);
     }
   }
 
-  startLoaderSubject() {
+  startLoadingMore() {
     if (!_loadingMoreStream.isClosed) {
       _loadingMoreStream.add(true);
     }
   }
 
-  stopLoaderSubject() {
+  stopLoadingMore() {
     if (!_loadingMoreStream.isClosed) {
       _loadingMoreStream.add(false);
     }

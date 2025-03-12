@@ -20,6 +20,7 @@ This allows easy adding of data from network and disposing of bloc
 ## How To Use Custom Bloc
 
 ```dart
+
 void main() async {
   String type = 'multi';
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,8 +28,8 @@ void main() async {
     home: type == 'one'
         ? const Example()
         : type == 'two'
-        ? const Example2()
-        : const ExampleMulti(),
+            ? const Example2()
+            : const ExampleMulti(),
   ));
 }
 
@@ -62,7 +63,7 @@ class _ExampleState extends State<Example> {
                     itemCount: 1,
                     scrollDirection: Axis.horizontal,
                     padding:
-                    const EdgeInsets.symmetric(horizontal: 4, vertical: 24),
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 24),
                     itemBuilder: (context, index) {
                       return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -228,12 +229,12 @@ class _Example2State extends State<Example2> {
                               style: const TextStyle(fontSize: 34),
                             )
                           else if (counterBlocState == ItemState.noContent)
-                              const SizedBox()
-                            else
-                              Text(
-                                'counterBlocData: $counterBlocData',
-                                style: const TextStyle(fontSize: 34),
-                              ),
+                            const SizedBox()
+                          else
+                            Text(
+                              'counterBlocData: $counterBlocData',
+                              style: const TextStyle(fontSize: 34),
+                            ),
                           const SizedBox(
                             height: 34,
                           ),
@@ -247,12 +248,12 @@ class _Example2State extends State<Example2> {
                               style: const TextStyle(fontSize: 34),
                             )
                           else if (newCounterBlocState == ItemState.noContent)
-                              const SizedBox()
-                            else
-                              Text(
-                                'newCounterBlocData: $newCounterBlocData',
-                                style: const TextStyle(fontSize: 34),
-                              ),
+                            const SizedBox()
+                          else
+                            Text(
+                              'newCounterBlocData: $newCounterBlocData',
+                              style: const TextStyle(fontSize: 34),
+                            ),
                         ],
                       ));
                 },
@@ -363,7 +364,7 @@ class CounterBloc2 extends BaseBlocInfiniteLoadingFactoryBloc<double, String> {
 
   @override
   fetchNextPage(
-      {Function()? onSuccessfulFetch, Function()? onFailedFetch}) async {
+      {Function()? startLoadingMore, Function()? stopLoadingMore}) async {
     await Future.delayed(const Duration(seconds: 2));
     value += 0.5;
     addToModel(value);
@@ -444,12 +445,12 @@ class _ExampleMultiState extends State<ExampleMulti> {
                               style: const TextStyle(fontSize: 34),
                             )
                           else if (counterBlocState == ItemState.noContent)
-                              const SizedBox()
-                            else
-                              Text(
-                                'counterBlocData: $counterBlocData',
-                                style: const TextStyle(fontSize: 34),
-                              ),
+                            const SizedBox()
+                          else
+                            Text(
+                              'counterBlocData: $counterBlocData',
+                              style: const TextStyle(fontSize: 34),
+                            ),
                           const SizedBox(
                             height: 34,
                           ),
@@ -463,12 +464,12 @@ class _ExampleMultiState extends State<ExampleMulti> {
                               style: const TextStyle(fontSize: 34),
                             )
                           else if (newCounterBlocState == ItemState.noContent)
-                              const SizedBox()
-                            else
-                              Text(
-                                'newCounterBlocData: $newCounterBlocData',
-                                style: const TextStyle(fontSize: 34),
-                              ),
+                            const SizedBox()
+                          else
+                            Text(
+                              'newCounterBlocData: $newCounterBlocData',
+                              style: const TextStyle(fontSize: 34),
+                            ),
                           if (newCounterBlocState3 == ItemState.loading)
                             const Center(
                               child: CircularProgressIndicator(),
@@ -479,12 +480,12 @@ class _ExampleMultiState extends State<ExampleMulti> {
                               style: const TextStyle(fontSize: 34),
                             )
                           else if (newCounterBlocState3 == ItemState.noContent)
-                              const SizedBox()
-                            else
-                              Text(
-                                'newCounterBlocData: $newCounterBlocData3',
-                                style: const TextStyle(fontSize: 34),
-                              ),
+                            const SizedBox()
+                          else
+                            Text(
+                              'newCounterBlocData: $newCounterBlocData3',
+                              style: const TextStyle(fontSize: 34),
+                            ),
                         ],
                       ));
                 },
@@ -673,7 +674,7 @@ class _ExampleCustomBlocBuilderState extends State<ExampleCustomBlocBuilder> {
                         itemBuilder: (context, index) {
                           return Padding(
                               padding:
-                              const EdgeInsets.symmetric(horizontal: 12),
+                                  const EdgeInsets.symmetric(horizontal: 12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -758,7 +759,7 @@ class CounterInfiniteScrollingBloc
   int get itemsPerPage => perPage;
 
   double value = 0;
- 
+
   initFetch() async {
     setAsLoading();
 
@@ -766,20 +767,24 @@ class CounterInfiniteScrollingBloc
     value += 0.5;
     addToModel(value);
 
-    incrementPageCountAndStartLoaderSubject();
+    incrementPageCountAndStartLoadingMore();
   }
 
   @override
   fetchNextPage(
-      {Function()? onSuccessfulFetch, Function()? onFailedFetch}) async {
+      {Function()? startLoadingMore, Function()? stopLoadingMore}) async {
     bool isSuccessful = await Future.delayed(const Duration(seconds: 2));
 
     if (isSuccessful) {
       value += 0.5;
       addToModel(value);
-      incrementPageCountAndStartLoaderSubject();
+      if (startLoadingMore != null) {
+        startLoadingMore();
+      }
     } else {
-      stopLoaderSubject();
+      if (stopLoadingMore != null) {
+        stopLoadingMore();
+      }
     }
   }
 
@@ -788,12 +793,14 @@ class CounterInfiniteScrollingBloc
     setAsNoContent();
   }
 
+  @override
   invalidate() {
-    invalidateBaseBloc();
+   super.invalidate();
   }
 
+  @override
   dispose() {
-    disposeBaseBloc();
+    super.dispose();
   }
 }
 
@@ -822,14 +829,14 @@ class _ExampleInfiniteScrollingState extends State<ExampleInfiniteScrolling> {
           children: [
             Expanded(
               child: CustomInfiniteScrollingStreamBuilder(
-                loaderStream: counterBloc.loaderSubject,
+                loaderStream: counterBloc.loadingMoreStream,
                 builder: (context, loadingData) => CustomStreamBuilder(
                   stream: counterBloc.behaviorSubject,
                   dataBuilder: (context, data) {
                     return NotificationListener(
                       onNotification: (notification) {
                         if (notification is ScrollNotification) {
-                          counterBloc.sink.add(notification);
+                          counterBloc.sinkScrollNotification.add(notification);
                         }
                         return true;
                       },
@@ -841,7 +848,7 @@ class _ExampleInfiniteScrollingState extends State<ExampleInfiniteScrolling> {
                         itemBuilder: (context, index) {
                           return Padding(
                               padding:
-                              const EdgeInsets.symmetric(horizontal: 12),
+                                  const EdgeInsets.symmetric(horizontal: 12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -945,9 +952,9 @@ class _ExampleInfiniteScrollingWithCustomBlocBuilderState
           children: [
             Expanded(
               child: CustomInfiniteScrollingStreamBuilder(
-                loaderStream: counterBloc.loaderSubject,
+                loaderStream: counterBloc.loadingMoreStream,
                 builder: (context, loadingData) => CustomInfiniteBlocBuilder(
-                  loadingMoreStream: counterBloc.loaderSubject,
+                  loadingMoreStream: counterBloc.loadingMoreStream,
                   stream: counterBloc.behaviorSubject,
                   builder: (context, state, isLoadingMore, data, error) {
                     if (state == ItemState.loading) {
@@ -964,7 +971,7 @@ class _ExampleInfiniteScrollingWithCustomBlocBuilderState
                     return NotificationListener(
                       onNotification: (notification) {
                         if (notification is ScrollNotification) {
-                          counterBloc.sink.add(notification);
+                          counterBloc.sinkScrollNotification.add(notification);
                         }
                         return true;
                       },
@@ -976,7 +983,7 @@ class _ExampleInfiniteScrollingWithCustomBlocBuilderState
                         itemBuilder: (context, index) {
                           return Padding(
                               padding:
-                              const EdgeInsets.symmetric(horizontal: 12),
+                                  const EdgeInsets.symmetric(horizontal: 12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -1045,7 +1052,6 @@ class _ExampleInfiniteScrollingWithCustomBlocBuilderState
     );
   }
 }
-
 
 ```
 
