@@ -1,6 +1,6 @@
 name: custom_bloc
 description: A simple wrapper around stream controller/rxdart stream for easier implementation of bloc pattern
-version: 0.1.9
+version: 1.0.0
 homepage: https://github.com/Opestein/custom_bloc
 
 environment:
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  rxdart: ^0.27.3
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:

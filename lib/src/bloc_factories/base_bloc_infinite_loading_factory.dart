@@ -2,30 +2,31 @@ import 'package:custom_bloc/custom_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
-abstract class BaseBlocInfiniteLoadingFactoryBloc<T, E> extends BaseBloc {
+abstract class BaseBlocInfiniteLoadingFactoryBloc<T, E> extends BaseBloc<T, E> {
   int pageNumber = 1;
   int perPage = 20;
   double pixels = 0.0;
 
-  BaseBlocInfiniteLoadingFactoryBloc() {
-    _controller.listen((notification) => _fetchNextPage(notification));
-    _loaderSubject.add(false);
+  BaseBlocInfiniteLoadingFactoryBloc(
+      {Function(ScrollNotification scrollNotification)? fetchNextPage}) {
+    _scrollControllerCC.listen((notification) => (fetchNextPage != null)
+        ? fetchNextPage(notification)
+        : _fetchNextPage(notification));
+    _loadingMoreStream.add(false);
   }
 
-  final BehaviorSubject<bool> _loaderSubject = BehaviorSubject<bool>();
+  final BehaviorSubject<bool> _loadingMoreStream = BehaviorSubject<bool>();
 
-  BehaviorSubject<bool> get loaderSubject => _loaderSubject;
+  BehaviorSubject<bool> get loadingMoreStream => _loadingMoreStream;
 
-  final ReplaySubject<ScrollNotification> _controller = ReplaySubject();
+  ValueStream<bool> get isLoadingMore => _loadingMoreStream.stream;
 
-  Sink<ScrollNotification> get sink => _controller.sink;
+  final ReplaySubject<ScrollNotification> _scrollControllerCC = ReplaySubject();
 
-  reload() {}
+  Sink<ScrollNotification> get sinkScrollNotification => _scrollControllerCC.sink;
 
-  initIfEmptyOrError() {}
-
-  initFetch() async {
-    _loaderSubject.add(false);
+  resetInfiniteDependencies() {
+    _loadingMoreStream.add(false);
     pageNumber = 1;
     pixels = 0;
   }
@@ -46,6 +47,7 @@ abstract class BaseBlocInfiniteLoadingFactoryBloc<T, E> extends BaseBloc {
     }
   }
 
+  /// Override if you want to conform;
   fetchNextPage({Function()? onSuccessfulFetch, Function()? onFailedFetch});
 
   invalidate() {
@@ -54,28 +56,28 @@ abstract class BaseBlocInfiniteLoadingFactoryBloc<T, E> extends BaseBloc {
   }
 
   dispose() {
-    _controller.close();
-    _loaderSubject.close();
+    _loadingMoreStream.close();
     disposeBaseBloc();
   }
 
+  // Below are helper functions
   incrementPageCount() => pageNumber = pageNumber + 1;
 
   incrementPageCountAndStartLoaderSubject() {
-    if (!_loaderSubject.isClosed) {
-      _loaderSubject.add(true);
+    if (!_loadingMoreStream.isClosed) {
+      _loadingMoreStream.add(true);
     }
   }
 
   startLoaderSubject() {
-    if (!_loaderSubject.isClosed) {
-      _loaderSubject.add(true);
+    if (!_loadingMoreStream.isClosed) {
+      _loadingMoreStream.add(true);
     }
   }
 
   stopLoaderSubject() {
-    if (!_loaderSubject.isClosed) {
-      _loaderSubject.add(false);
+    if (!_loadingMoreStream.isClosed) {
+      _loadingMoreStream.add(false);
     }
   }
 }

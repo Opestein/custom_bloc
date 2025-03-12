@@ -749,10 +749,7 @@ class CounterInfiniteScrollingBloc
 
   double value = 0;
 
-  @override
   initFetch() async {
-    super.initFetch();
-
     setAsLoading();
 
     await Future.delayed(const Duration(seconds: 2));
@@ -815,14 +812,14 @@ class _ExampleInfiniteScrollingState extends State<ExampleInfiniteScrolling> {
           children: [
             Expanded(
               child: CustomInfiniteScrollingStreamBuilder(
-                loaderStream: counterBloc.loaderSubject,
+                loaderStream: counterBloc.loadingMoreStream,
                 builder: (context, loadingData) => CustomStreamBuilder(
                   stream: counterBloc.behaviorSubject,
                   dataBuilder: (context, data) {
                     return NotificationListener(
                       onNotification: (notification) {
                         if (notification is ScrollNotification) {
-                          counterBloc.sink.add(notification);
+                          counterBloc.sinkScrollNotification.add(notification);
                         }
                         return true;
                       },
@@ -861,6 +858,134 @@ class _ExampleInfiniteScrollingState extends State<ExampleInfiniteScrolling> {
                     error,
                     style: const TextStyle(),
                   ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 34,
+            ),
+            Row(
+              children: [
+                TextButton(
+                    onPressed: () {
+                      counterBloc.fetchNextPage();
+                    },
+                    child: const Text(
+                      'Add Value',
+                      style: TextStyle(),
+                    )),
+                const SizedBox(
+                  width: 34,
+                ),
+                TextButton(
+                    onPressed: () {
+                      counterBloc.resetData();
+                    },
+                    child: const Text(
+                      'Set to no data',
+                      style: TextStyle(),
+                    )),
+                const SizedBox(
+                  width: 34,
+                ),
+                TextButton(
+                    onPressed: () {
+                      counterBloc.fetchNextPage();
+                    },
+                    child: const Text(
+                      'Add Error',
+                      style: TextStyle(),
+                    )),
+              ],
+            ),
+            const SizedBox(
+              height: 34,
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ExampleInfiniteScrollingWithCustomBlocBuilder extends StatefulWidget {
+  const ExampleInfiniteScrollingWithCustomBlocBuilder({Key? key})
+      : super(key: key);
+
+  @override
+  State<ExampleInfiniteScrollingWithCustomBlocBuilder> createState() =>
+      _ExampleInfiniteScrollingWithCustomBlocBuilderState();
+}
+
+class _ExampleInfiniteScrollingWithCustomBlocBuilderState
+    extends State<ExampleInfiniteScrollingWithCustomBlocBuilder> {
+  final counterBloc = CounterInfiniteScrollingBloc();
+
+  @override
+  void dispose() {
+    super.dispose();
+    counterBloc.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: CustomInfiniteScrollingStreamBuilder(
+                loaderStream: counterBloc.loadingMoreStream,
+                builder: (context, loadingData) => CustomInfiniteBlocBuilder(
+                  loadingMoreStream: counterBloc.loadingMoreStream,
+                  stream: counterBloc.behaviorSubject,
+                  builder: (context, state, isLoadingMore, data, error) {
+                    if (state == ItemState.loading) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    if (state == ItemState.hasError) {
+                      return Text(
+                        '$error',
+                        style: const TextStyle(),
+                      );
+                    }
+                    return NotificationListener(
+                      onNotification: (notification) {
+                        if (notification is ScrollNotification) {
+                          counterBloc.sinkScrollNotification.add(notification);
+                        }
+                        return true;
+                      },
+                      child: ListView.separated(
+                        itemCount: 1,
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 24),
+                        itemBuilder: (context, index) {
+                          return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'index: $index: data: $data',
+                                    style: const TextStyle(fontSize: 34),
+                                  ),
+                                ],
+                              ));
+                        },
+                        separatorBuilder: (context, index) {
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10.0),
+                            child: VerticalDivider(),
+                          );
+                        },
+                      ),
+                    );
+                  },
                 ),
               ),
             ),

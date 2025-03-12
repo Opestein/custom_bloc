@@ -1,3 +1,8 @@
+# 1.0.0
+
+- Revamped base bloc for better efficiency
+- Added CustomInfiniteBlocBuilder widget for better control of isLoadingMore
+
 # 0.1.9
 
 - Fixed issue adding some data to bloc
